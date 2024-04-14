@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script></head>
+<body>
+    <div>
+        <form id="url_form" action={% url "shorten_url" %} method="post">
+            {% csrf_token %}
+            
+            <label for="">Enter your url</label>
+            <input type="text" name="link">
+            <input type="submit" value="Submit">
+        </form>
+
+        <div>
+            <p id="error"></p>
+            <a id="success" target="_blank" rel="noopener noreferrer"></a>
+        </div>
+    </div>
+
+    <script>
+
+        $("#url_form").submit(function(e) {
+            e.preventDefault();
+
+            let form = $(this);
+            let post_url = form.attr("action");
+            
+            $.ajax({
+                type: "POST",
+                url: post_url,
+                data: form.serialize(),
+
+                success: function(data) {
+                    let response = data;
+
+                    if (response.status == "error"){
+                        $("#error").text(response.msg);
+                    }
+                    else if (response.status == "success"){
+                        $("#success").attr("href", "http://" + response.msg);
+                        $("#success").text(response.msg);
+                    }
+                },
+            });
+        });
+    </script>
+</body>
+
+</html>
