@@ -11,7 +11,7 @@
             {% csrf_token %}
             
             <label for="">Enter your url</label>
-            <input type="text" name="link">
+            <input type="url" name="link" required>
             <input type="submit" value="Submit">
         </form>
 
@@ -28,7 +28,9 @@
 
             let form = $(this);
             let post_url = form.attr("action");
-            
+            const success_p = $("#success");
+            const error_p = $("#error");
+
             $.ajax({
                 type: "POST",
                 url: post_url,
@@ -38,11 +40,11 @@
                     let response = data;
 
                     if (response.status == "error"){
-                        $("#error").text(response.msg);
+                        error_p.text(response.msg);
                     }
                     else if (response.status == "success"){
-                        $("#success").attr("href", "http://" + response.msg);
-                        $("#success").text(response.msg);
+                        success_p.attr("href", "http://" + response.msg);
+                        success_p.text(response.msg);
                     }
                 },
             });

@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from .models import UrlToken
 from .utils.token_generator import generate_token
 
+
 # Create your views here.
 
 
@@ -28,7 +29,10 @@ def shorten_url(request):
 
 def redirect_url(request, token):
     if request.method == "GET":
-        data = UrlToken.objects.get(token=token)
+        try:
+            data = UrlToken.objects.get(token=token)
+        except UrlToken.DoesNotExist:
+            return redirect("home")
         url = data.url
 
         return redirect(url)
