@@ -2,9 +2,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.http import JsonResponse
 from .models import UrlToken
 from .utils.token_generator import generate_token
-
-
-# Create your views here.
+from urllib.parse import quote
 
 
 def home(request):
@@ -14,13 +12,22 @@ def home(request):
 def shorten_url(request):
     if request.method == "POST":
         url = request.POST["link"]
-        token = generate_token()
+        alias = request.POST["alias"]
+
+        if alias:
+            token = quote(alias[:20])
+        else:
+            token = generate_token()
+
+        if UrlToken.objects.filter(token=token).exists():
+            print("Token already exists, generating new token.")
+            token = token + generate_token(4)
         data = UrlToken(url=url, token=token)
 
         try:
             data.full_clean()
         except Exception as e:
-            print(e)
+            print("Error: ", e)
             return JsonResponse({"status": "error", "msg": "Please try again"})
         else:
             data.save()
