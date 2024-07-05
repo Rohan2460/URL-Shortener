@@ -4,30 +4,75 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Document</title>
+        <script src="https://cdn.tailwindcss.com"></script>
         <script
             src="https://code.jquery.com/jquery-3.7.1.js"
             integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
             crossorigin="anonymous"></script>
     </head>
-    <body>
-        <div>
-            <form id="url_form" action='{% url "shorten_url" %}' method="post">
-                {% csrf_token %}
+    <body class="bg-slate-700">
+        <div class="bg-indigo-600 p-4 block flex justify-start">
+            <h1 class="text-xl font-semibold text-white">URL Shortener</h1>
+        </div>
 
-                <label for="">Enter your url</label>
-                <input type="url" name="link" required />
-                <label for="">Custom alias</label>
-                <input type="text" name="alias" />
-                <input type="submit" value="Submit" />
-            </form>
+        <div class="m-4 flex flex-col items-center text-white text-lg text-left text-lg text-left">
+            <div class="bg-indigo-500 p-5 drop-shadow-lg rounded-lg my-4 pb-8 md:px-8">
+                <!-- Form -->
 
-            <div>
-                <p id="error"></p>
-                <a id="success" target="_blank" rel="noopener noreferrer"></a>
+                <form id="url_form" action='{% url "shorten_url" %}' method="post">
+                    {% csrf_token %}
+
+                    <p class="my-3 font-semibold">Shorten URL</p>
+                    <input
+                        type="text"
+                        name="link"
+                        required
+                        placeholder="Enter link"
+                        class="border rounded-md p-2 my-1 text-black md:w-80" />
+                    <input
+                        type="submit"
+                        class="p-2 px-4 bg-indigo-600 rounded-md m-1 font-semibold hover:bg-indigo-300 focus:ring"
+                        value="Shorten URL" />
+
+                    <div>
+                        <p class="my-3 font-semibold">Enter alias (Optional)</p>
+                        <input
+                            type="text"
+                            name="alias"
+                            placeholder="Enter alias"
+                            class="border rounded-md p-2 my-1 text-black" />
+                    </div>
+                </form>
+            </div>
+
+            <!-- Output -->
+            <div class="bg-indigo-500 p-5 drop-shadow-lg rounded-lg my-6 md:pr-24" id="output_div">
+                <p class="w-full my-3 font-semibold">Shortened Link</p>
+                <input
+                    type="text"
+                    id="success"
+                    placeholder="Link"
+                    readonly
+                    class="border rounded-md p-2 my-1 text-black md:w-80" />
+                <button
+                    class="p-2 px-4 bg-indigo-600 rounded-md m-1 font-semibold hover:bg-indigo-300 focus:ring"
+                    onclick="copyURL()">
+                    Copy
+                </button>
+            </div>
+
+            <!-- Error  -->
+            <div class="bg-red-400 p-5 drop-shadow-lg rounded-lg my-4 md:px-8" id="error_div">
+                <p class="w-full font-semibold" id="error">An Error Occurred</p>
             </div>
         </div>
 
         <script>
+            const success_div = $("#output_div");
+            const error_div = $("#error_div");
+            success_div.hide();
+            error_div.hide();
+
             $("#url_form").submit(function (e) {
                 e.preventDefault();
 
@@ -45,14 +90,22 @@
                         let response = data;
 
                         if (response.status == "error") {
+                            error_div.show();
                             error_p.text(response.msg);
                         } else if (response.status == "success") {
-                            success_p.attr("href", "http://" + response.msg);
-                            success_p.text(response.msg);
+                            success_div.show();
+                            success_p.attr("value", "http://" + response.msg);
+                            error_div.hide();
                         }
                     },
                 });
             });
+
+            function copyURL() {
+                let copyText = $("#success");
+                copyText.select();
+                navigator.clipboard.writeText(copyText.val());
+            }
         </script>
     </body>
 </html>
